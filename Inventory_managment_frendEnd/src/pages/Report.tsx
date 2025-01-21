@@ -45,7 +45,7 @@ type ColumnsType = {
 
 const ReportPage = () => {
     const [reportData, setReportData] = useState<(SalesReport | ProductReport)[]>([]);
-    const [dateRange, setDateRange] = useState<[Date | null, Date | null] | null>(null);
+    const [, setDateRange] = useState<[Date | null, Date | null] | null>(null);
     const [activeReport, setActiveReport] = useState<ReportType>("product");
 
     const fetchReport = async (reportType: ReportType = "product") => {
@@ -71,6 +71,7 @@ const ReportPage = () => {
 
     const handleDateRangeChange = (dates: any) => {
         setDateRange(dates);
+
     };
 
     const exportToExcel = (data: (SalesReport | ProductReport)[], fileName: string) => {

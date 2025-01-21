@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 const Sales = () => {
     const navigate = useNavigate();
-    const [salesData, setSalesData] = useState([]);
+    const [salesData, setSalesData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Fetch sales data from the backend
