@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 
 
 export interface ICustomers extends Document {
@@ -5,5 +6,7 @@ export interface ICustomers extends Document {
     address: string;
     mobile: string;
     gender: string;
-    email: string
+    email: string,
+    author: string | mongoose.Types.ObjectId
+
 }

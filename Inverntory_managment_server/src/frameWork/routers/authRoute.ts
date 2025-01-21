@@ -7,6 +7,7 @@ import { config } from "../config/envConfig";
 // import { validateSignUp } from "../validator/signUPValidator";
 import { validateLogin } from "../validator/loginValidator";
 import { validateSignUp } from "../validator/signUPValidator";
+import { authorization } from "../middileware/authMilddilware";
 // import { authorization } from "../middileware/authMilddilware";
 
 export const userRouter = Router();
@@ -27,7 +28,7 @@ userRouter.post(
 );
 userRouter.get(
     "/profile",
-    // authorization(),
+    authorization(),
     authController.getProfileData.bind(authController)
 );
 userRouter.put(

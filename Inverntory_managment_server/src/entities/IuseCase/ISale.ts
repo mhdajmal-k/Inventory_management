@@ -9,7 +9,7 @@ export default interface ISaleInteractor {
         message: string;
         result: object | null;
     }>;
-    getSalesData(): Promise<{
+    getSalesData(author: string | undefined): Promise<{
         statusCode: number;
         status: boolean;
         message: string;
@@ -21,7 +21,7 @@ export default interface ISaleInteractor {
         message: string;
         result: ISale | null;
     }>;
-    getSalesReport(): Promise<{
+    getSalesReport(author: string | undefined): Promise<{
         statusCode: number;
         status: boolean;
         message: string;

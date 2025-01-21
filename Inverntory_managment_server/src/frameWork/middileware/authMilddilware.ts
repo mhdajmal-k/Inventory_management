@@ -8,7 +8,7 @@ import { AuthenticatedRequest } from "../type/userType";
 
 export const authorization =
     () =>
-        async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> => {
 
             const userToken = req.cookies.User_AccessToken;
             const jwt = new JwtToken(config.JWT_SECRET, config.JWT_REFRESH_SECRET);

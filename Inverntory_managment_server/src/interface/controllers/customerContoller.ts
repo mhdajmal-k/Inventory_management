@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import ICustomersInteractor from "../../entities/IuseCase/ICustomers";
+import { AuthenticatedRequest } from "../../frameWork/type/userType";
 
 
 class CustomersController {
     constructor(private CustomersInteractor: ICustomersInteractor) { }
-    async addCustomers(req: Request, res: Response, next: NextFunction) {
+    async addCustomers(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
             const productDAta = req.body
+            productDAta.author = req.user?.id
             const response = await this.CustomersInteractor.addCustomers(productDAta)
             if (response.status) {
                 res.status(response.statusCode).json({
@@ -20,10 +22,10 @@ class CustomersController {
             next(error);
         }
     }
-    async getCustomers(req: Request, res: Response, next: NextFunction) {
+    async getCustomers(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
-
-            const response = await this.CustomersInteractor.getCustomers()
+            const author = req.user?.id
+            const response = await this.CustomersInteractor.getCustomers(author)
             if (response.status) {
                 res.status(response.statusCode).json({
                     status: response.status,

@@ -8,7 +8,8 @@ const itemSchema = new Schema<IItem>(
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true, min: 0.01 },
         totalStockValue: { type: Number, required: true, min: 0.01 },
-        block: { type: Boolean, default: false }
+        block: { type: Boolean, default: false },
+        author: { type: String, required: true, index: true }
     },
     { timestamps: true }
 );

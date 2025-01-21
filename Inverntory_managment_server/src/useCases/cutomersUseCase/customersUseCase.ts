@@ -36,9 +36,9 @@ export default class CustomerInteractor implements ICustomersInteractor {
             }
         }
     }
-    async getCustomers(): Promise<{ statusCode: number; status: boolean; message: string; result: ICustomers[] | null; }> {
+    async getCustomers(author: string | undefined): Promise<{ statusCode: number; status: boolean; message: string; result: ICustomers[] | null; }> {
         try {
-            const customer = await this.Repository.getCustomer()
+            const customer = await this.Repository.getCustomer(author)
             if (customer) {
                 return {
                     statusCode: HttpStatusCode.Created,

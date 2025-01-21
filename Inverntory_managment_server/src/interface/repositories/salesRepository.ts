@@ -17,7 +17,8 @@ export default class SaleRepository implements ISaleRepository {
                 paymentMethod: data.paymentMethod,
                 quantity: data.quantity,
                 total: data.total,
-                productId: data.productId
+                productId: data.productId,
+                author: data.author
             });
             await newItem.save();
             console.log(newItem, "dddddddddddd")
@@ -33,9 +34,10 @@ export default class SaleRepository implements ISaleRepository {
             }
         }
     }
-    async getSales(): Promise<ISale[]> {
+    async getSales(author: string | undefined): Promise<ISale[]> {
         try {
             const allSales = await Sale.aggregate([
+                { $match: { author: author } },
                 {
                     $lookup: {
                         from: "customers",

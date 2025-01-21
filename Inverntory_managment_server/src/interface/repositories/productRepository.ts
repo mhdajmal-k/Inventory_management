@@ -13,7 +13,8 @@ export default class ProductRepository implements IProductRepository {
                 description: data.description,
                 quantity: data.quantity,
                 price: data.price,
-                totalStockValue: data.totalStockValue
+                totalStockValue: data.totalStockValue,
+                author: data.author
             });
 
             await newItem.save();
@@ -29,9 +30,9 @@ export default class ProductRepository implements IProductRepository {
             }
         }
     }
-    async getProduct(): Promise<IItem[]> {
+    async getProduct(author: string): Promise<IItem[]> {
         try {
-            const products = await Product.find({ block: false })
+            const products = await Product.find({ block: false, author: author })
             return products
         } catch (error) {
             if (error instanceof Error) {
@@ -73,11 +74,10 @@ export default class ProductRepository implements IProductRepository {
     }
     async deleteProductWithId(productId: string): Promise<IItem | null> {
         try {
-            // Update the 'block' field to true for soft delete
             const deletedProduct = await Product.findByIdAndUpdate(
                 productId,
                 { $set: { block: true } },
-                { new: true } // Return the updated document
+                { new: true }
             );
 
             if (!deletedProduct) {
@@ -150,9 +150,10 @@ export default class ProductRepository implements IProductRepository {
             }
         }
     }
-    async ProductReport(): Promise<any> {
+    async ProductReport(author: string | undefined): Promise<any> {
         try {
             const productReport = await Product.aggregate([
+                { $match: { author: author, block: false } },
                 {
                     $lookup: {
                         from: "sales",
@@ -188,7 +189,7 @@ export default class ProductRepository implements IProductRepository {
                     }
                 },
                 {
-                    $sort: { totalRevenue: -1 } // Sort by total revenue in descending order
+                    $sort: { totalRevenue: -1 }
                 }
             ]);
             return productReport;

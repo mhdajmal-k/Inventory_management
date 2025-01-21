@@ -9,7 +9,7 @@ export default interface ICustomersInteractor {
         message: string;
         result: ICustomers | null;
     }>;
-    getCustomers(): Promise<{
+    getCustomers(author: string | undefined): Promise<{
         statusCode: number;
         status: boolean;
         message: string;

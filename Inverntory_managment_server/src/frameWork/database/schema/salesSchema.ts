@@ -9,7 +9,9 @@ const saleSchema = new Schema<ISale>({
     quantity: { type: Number, required: true },
     paymentMethod: { type: String, required: true },
     total: { type: Number, required: true },
-    date: { type: Date, default: Date.now }
+    date: { type: Date, default: Date.now },
+    author: { type: String, required: true, index: true }
+
 });
 
 const Sale = model<ISale>("Sale", saleSchema);

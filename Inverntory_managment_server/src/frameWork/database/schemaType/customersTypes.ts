@@ -3,5 +3,7 @@ export interface ICustomer extends Document {
     address: string;
     mobile: string;
     gender: string;
-    email: string
+    email: string,
+    author: string
+
 }

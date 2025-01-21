@@ -1,10 +1,21 @@
 import { Button } from "antd"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import axiosInstance from "../service/axiosConfigue";
+import { USERLOGOUT } from "../service/api";
+import { toast } from "sonner";
 
 const NavBar = () => {
     const user = localStorage.getItem("user");
-    const handleLogout = () => {
-        localStorage.removeItem("user")
+    const navigate = useNavigate()
+    const handleLogout = async () => {
+        localStorage.clear()
+        const response = await axiosInstance.post(USERLOGOUT)
+        if (response.data.status == true) {
+            navigate('/')
+        } else {
+            toast.error("error while logout")
+        }
+
     }
 
     return (

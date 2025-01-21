@@ -22,7 +22,9 @@ const CustomerSchema = new Schema<ICustomer>({
     email: {
         type: String,
         required: true
-    }
+    },
+    author: { type: String, required: true, index: true }
+
 }, { timestamps: true });
 
 const Customer = model<ICustomer>('Customer', CustomerSchema);

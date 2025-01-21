@@ -1,12 +1,14 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import ISaleInteractor from "../../entities/IuseCase/ISale";
+import { AuthenticatedRequest } from "../../frameWork/type/userType";
 
 
 class SalesController {
     constructor(private SaleInteractor: ISaleInteractor) { }
-    async createSale(req: Request, res: Response, next: NextFunction) {
+    async createSale(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
             const productDAta = req.body
+            productDAta.author = req.user?.id
             const response = await this.SaleInteractor.createSale(productDAta)
             if (response.status) {
                 res.status(response.statusCode).json({
@@ -20,10 +22,10 @@ class SalesController {
             next(error);
         }
     }
-    async getSalesData(req: Request, res: Response, next: NextFunction) {
+    async getSalesData(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
-
-            const response = await this.SaleInteractor.getSalesData()
+            const author = req.user?.id
+            const response = await this.SaleInteractor.getSalesData(author)
             console.log(response, "is the resp")
             if (response.status) {
                 res.status(response.statusCode).json({
@@ -37,7 +39,7 @@ class SalesController {
             next(error);
         }
     }
-    async getSalesDataById(req: Request, res: Response, next: NextFunction) {
+    async getSalesDataById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
             const id = req.params.id
             console.log(req.params)
@@ -55,10 +57,10 @@ class SalesController {
             next(error);
         }
     }
-    async getSalesReport(req: Request, res: Response, next: NextFunction) {
+    async getSalesReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
-            console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
-            const response = await this.SaleInteractor.getSalesReport()
+            const author = req.user?.id
+            const response = await this.SaleInteractor.getSalesReport(author)
             console.log(response, "is the resp")
             if (response.status) {
                 res.status(response.statusCode).json({

@@ -57,9 +57,9 @@ export default class SalesInteractor implements ISaleInteractor {
             }
         }
     }
-    async getSalesData(): Promise<{ statusCode: number; status: boolean; message: string; result: ISale[] | null; }> {
+    async getSalesData(author: string | undefined): Promise<{ statusCode: number; status: boolean; message: string; result: ISale[] | null; }> {
         try {
-            const allSales = await this.Repository.getSales()
+            const allSales = await this.Repository.getSales(author)
             console.log(allSales, "is teh use")
             if (allSales) {
                 return {
@@ -115,10 +115,10 @@ export default class SalesInteractor implements ISaleInteractor {
         }
     }
 
-    async getSalesReport(): Promise<{ statusCode: number; status: boolean; message: string; result: object | null; }> {
+    async getSalesReport(author: string | undefined): Promise<{ statusCode: number; status: boolean; message: string; result: object | null; }> {
         console.log('hhhhhhhhhhhhhhhhhhhhh')
         const salesCount = await this.Repository.getSaleCount()
-        const salesReport = await this.Repository.getSales()
+        const salesReport = await this.Repository.getSales(author)
         if (salesCount && salesReport) {
             return {
                 statusCode: HttpStatusCode.Created,

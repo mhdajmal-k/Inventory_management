@@ -9,4 +9,6 @@ export default interface ISale extends Document {
     paymentMethod: string;
     total: number;
     date: Date;
+    author: string | mongoose.Types.ObjectId
+
 }

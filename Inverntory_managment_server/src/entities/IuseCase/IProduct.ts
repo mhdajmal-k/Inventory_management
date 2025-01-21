@@ -9,13 +9,13 @@ export default interface IProductInteractor {
         message: string;
         result: object | null;
     }>;
-    productReport(): Promise<{
+    productReport(author: string | undefined): Promise<{
         statusCode: number;
         status: boolean;
         message: string;
         result: object | null;
     }>;
-    getProducts(): Promise<{
+    getProducts(author: string | undefined): Promise<{
         statusCode: number;
         status: boolean;
         message: string;

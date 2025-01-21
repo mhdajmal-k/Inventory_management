@@ -12,7 +12,8 @@ export default class CustomersRepository implements ICustomersRepository {
                 address: data.address,
                 email: data.email,
                 mobile: data.mobile,
-                gender: data.gender
+                gender: data.gender,
+                author: data.author
 
             });
 
@@ -29,9 +30,9 @@ export default class CustomersRepository implements ICustomersRepository {
             }
         }
     }
-    async getCustomer(): Promise<ICustomers[]> {
+    async getCustomer(author: string | undefined): Promise<ICustomers[]> {
         try {
-            const products = await Customer.find()
+            const products = await Customer.find({ author: author })
             return products
         } catch (error) {
             if (error instanceof Error) {

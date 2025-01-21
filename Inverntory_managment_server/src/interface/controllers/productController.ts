@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import IProductInteractor from "../../entities/IuseCase/IProduct";
+import { AuthenticatedRequest } from "../../frameWork/type/userType";
 
 
 class ProductController {
     constructor(private ProductInteractor: IProductInteractor) { }
-    async addProduct(req: Request, res: Response, next: NextFunction) {
+    async addProduct(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
             const productDAta = req.body
+            productDAta.author = req.user?.id
             const response = await this.ProductInteractor.addProduct(productDAta)
             if (response.status) {
                 res.status(response.statusCode).json({
@@ -20,10 +22,10 @@ class ProductController {
             next(error);
         }
     }
-    async getProducts(req: Request, res: Response, next: NextFunction) {
+    async getProducts(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
-
-            const response = await this.ProductInteractor.getProducts()
+            const author = req.user?.id
+            const response = await this.ProductInteractor.getProducts(author)
             if (response.status) {
                 res.status(response.statusCode).json({
                     status: response.status,
@@ -36,7 +38,7 @@ class ProductController {
             next(error);
         }
     }
-    async updateProducts(req: Request, res: Response, next: NextFunction) {
+    async updateProducts(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
             const productId = req.params.id
             console.log(productId, 'si the contorler')
@@ -70,9 +72,10 @@ class ProductController {
             next(error);
         }
     }
-    async productReport(req: Request, res: Response, next: NextFunction) {
+    async productReport(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
-            const response = await this.ProductInteractor.productReport()
+            const author = req.user?.id
+            const response = await this.ProductInteractor.productReport(author)
             if (response.status) {
                 res.status(response.statusCode).json({
                     status: response.status,

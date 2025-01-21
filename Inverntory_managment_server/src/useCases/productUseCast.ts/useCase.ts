@@ -35,9 +35,9 @@ export default class ProductInteractor implements IProductInteractor {
             }
         }
     }
-    async getProducts(): Promise<{ statusCode: number; status: boolean; message: string; result: IItem[] | null; }> {
+    async getProducts(author: string): Promise<{ statusCode: number; status: boolean; message: string; result: IItem[] | null; }> {
         try {
-            const products = await this.Repository.getProduct()
+            const products = await this.Repository.getProduct(author)
             if (products) {
                 return {
                     statusCode: HttpStatusCode.Created,
@@ -123,10 +123,10 @@ export default class ProductInteractor implements IProductInteractor {
             }
         }
     }
-    async productReport(): Promise<{ statusCode: number; status: boolean; message: string; result: object | null; }> {
+    async productReport(author: string | undefined): Promise<{ statusCode: number; status: boolean; message: string; result: object | null; }> {
 
         const productCount = await this.Repository.ProductCount()
-        const productReport = await this.Repository.ProductReport()
+        const productReport = await this.Repository.ProductReport(author)
         if (productCount && productReport) {
             return {
                 statusCode: HttpStatusCode.Created,
