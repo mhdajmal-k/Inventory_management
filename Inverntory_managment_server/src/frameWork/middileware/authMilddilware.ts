@@ -9,12 +9,10 @@ import { AuthenticatedRequest } from "../type/userType";
 export const authorization =
     () =>
         async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-            console.log(req.cookies, "is cookies");
+
             const userToken = req.cookies.User_AccessToken;
-            console.log(userToken, "is the user Token");
             const jwt = new JwtToken(config.JWT_SECRET, config.JWT_REFRESH_SECRET);
             let decodeToken;
-
             try {
                 decodeToken = jwt.verifyToken(userToken);
 
@@ -29,7 +27,7 @@ export const authorization =
                 if (decodeToken) {
                     const userRepository = new AuthRepository();
                     const existUser = await userRepository.getId(decodeToken.id);
-                    if (!existUser || existUser.block) {
+                    if (!existUser) {
                         return res.status(HttpStatusCode.Unauthorized).json({
                             message: !existUser ? Messages.UserNotFound : Messages.Block,
                             result: {},
