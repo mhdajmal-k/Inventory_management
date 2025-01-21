@@ -3,14 +3,33 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { DollarOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, Col, Statistic, Table, } from 'antd';
+import { Button, Card, Col, Statistic, Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import axiosInstance from '../service/axiosConfigue';
 import { getSale } from '../service/api';
 import { toast } from 'sonner';
 
+interface CustomerDetails {
+    name: string;
+    customerDetails?: {
+        name: string;
+    };
+}
+
+interface SalesData {
+    _id: string;
+    date: string;
+    customerDetails: CustomerDetails;
+    itemName: string;
+    price: number;
+    quantity: number;
+    total: number;
+    paymentMethod: string;
+}
+
 const Sales = () => {
     const navigate = useNavigate();
-    const [salesData, setSalesData] = useState<any[]>([]);
+    const [salesData, setSalesData] = useState<SalesData[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Fetch sales data from the backend
@@ -22,7 +41,6 @@ const Sales = () => {
                 setSalesData(response.data.result);
                 toast.success('Sales data loaded successfully');
             } else {
-
                 toast.error('Failed to load sales data');
             }
         } catch (error: any) {
@@ -41,7 +59,8 @@ const Sales = () => {
     useEffect(() => {
         fetchSalesData();
     }, []);
-    const columns = [
+
+    const columns: ColumnsType<SalesData> = [
         {
             title: 'Date',
             dataIndex: 'date',
@@ -52,7 +71,7 @@ const Sales = () => {
             title: 'Customer',
             dataIndex: 'customerDetails',
             key: 'customerDetails',
-            render: (record) => record.customerDetails?.name ?? 'N/A'
+            render: (record: CustomerDetails) => record.customerDetails?.name ?? record.name ?? 'N/A'
         },
         {
             title: 'Item Name',
@@ -63,7 +82,7 @@ const Sales = () => {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',
-            render: (price: number) => ` RS:${price.toFixed(2)}`,
+            render: (price: number) => `RS:${price.toFixed(2)}`,
         },
         {
             title: 'Quantity',
@@ -81,11 +100,10 @@ const Sales = () => {
             dataIndex: 'paymentMethod',
             key: 'paymentMethod',
         },
-
         {
             title: 'Actions',
             key: 'actions',
-            render: (_, record) => (
+            render: (_: unknown, record: SalesData) => (
                 <Button
                     type="link"
                     onClick={() => navigate(`/viewSales/${record._id}`)}
@@ -131,7 +149,6 @@ const Sales = () => {
                             />
                         </Card>
                     </Col>
-
                 </div>
 
                 <div className="flex items-center m-5 justify-between">
@@ -147,12 +164,12 @@ const Sales = () => {
                     dataSource={salesData}
                     columns={columns}
                     loading={loading}
-                    rowKey="_id" // Assuming `_id` is the unique identifier for each sale
+                    rowKey="_id"
                     bordered
                 />
             </div>
             <Footer />
-        </div >
+        </div>
     );
 };
 

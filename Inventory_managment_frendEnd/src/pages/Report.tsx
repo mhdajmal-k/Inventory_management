@@ -42,6 +42,15 @@ type ColumnsType = {
     sales: any[];  // You can make this more specific if needed
     product: any[];
 }
+interface ProcessedSalesReport {
+    Date: string;
+    Customer: string;
+    "Item Name": string;
+    Price: string;
+    Quantity: number;
+    Total: string;
+    "Payment Method": string;
+}
 
 const ReportPage = () => {
     const [reportData, setReportData] = useState<(SalesReport | ProductReport)[]>([]);
@@ -69,13 +78,14 @@ const ReportPage = () => {
         }
     };
 
-    const handleDateRangeChange = (dates: any) => {
+    const handleDateRangeChange = (dates: Date) => {
         setDateRange(dates);
 
     };
 
     const exportToExcel = (data: (SalesReport | ProductReport)[], fileName: string) => {
-        let processedData = data;
+        let processedData: ProcessedSalesReport[] | ProductReport[];
+
         if (fileName === "Sales_Report") {
             processedData = (data as SalesReport[]).map((item) => ({
                 Date: new Date(item.date).toLocaleDateString(),
@@ -86,6 +96,8 @@ const ReportPage = () => {
                 Total: `${item.total.toFixed(2)}`,
                 "Payment Method": item.paymentMethod,
             }));
+        } else {
+            processedData = data as ProductReport[];
         }
 
         const workbook = XLSX.utils.book_new();
@@ -95,7 +107,6 @@ const ReportPage = () => {
         const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
         saveAs(blob, `${fileName}.xlsx`);
     };
-
     const columns: ColumnsType = {
         sales: [
             {
