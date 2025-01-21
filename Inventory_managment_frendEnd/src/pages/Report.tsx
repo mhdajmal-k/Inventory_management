@@ -54,7 +54,7 @@ interface ProcessedSalesReport {
 
 const ReportPage = () => {
     const [reportData, setReportData] = useState<(SalesReport | ProductReport)[]>([]);
-    const [, setDateRange] = useState<[Date | null, Date | null] | null>(null);
+    // const [, setDateRange] = useState<[Date | null, Date | null] | null>(null);
     const [activeReport, setActiveReport] = useState<ReportType>("product");
 
     const fetchReport = async (reportType: ReportType = "product") => {
@@ -78,8 +78,8 @@ const ReportPage = () => {
         }
     };
 
-    const handleDateRangeChange = (dates: Date) => {
-        setDateRange(dates);
+    const handleDateRangeChange = () => {
+        // setDateRange(dates);
 
     };
 
