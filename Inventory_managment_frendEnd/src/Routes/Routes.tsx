@@ -1,10 +1,10 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PublicRoute from './PublicRoute';
 import ProtectRoute from './ProtuctRoute';
 import LoadingFallback from '../components/Loading';
 
-// Lazy load the pages
+
 const LandingPage = lazy(() => import('../pages/LandingPage'));
 const SignUpPage = lazy(() => import('../pages/SignUpPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));

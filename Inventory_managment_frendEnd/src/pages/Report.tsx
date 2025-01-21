@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, DatePicker, message } from 'antd';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
@@ -10,18 +10,51 @@ import "jspdf-autotable";
 
 const { RangePicker } = DatePicker;
 
-const ReportPage = () => {
-    const [reportData, setReportData] = useState([]);
-    const [dateRange, setDateRange] = useState([]);
-    const [activeReport, setActiveReport] = useState("product");
+// Define types for your data
+interface CustomerDetails {
+    name: string;
+}
 
-    const fetchReport = async (reportType = "product") => {
+interface SalesReport {
+    _id: string;
+    date: string;
+    customerDetails: CustomerDetails;
+    itemName: string;
+    price: number;
+    quantity: number;
+    total: number;
+    paymentMethod: string;
+}
+
+interface ProductReport {
+    _id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    totalUnitsSold: number;
+    totalRevenue: number;
+}
+
+type ReportType = 'sales' | 'product';
+
+// Define the columns type
+type ColumnsType = {
+    sales: any[];  // You can make this more specific if needed
+    product: any[];
+}
+
+const ReportPage = () => {
+    const [reportData, setReportData] = useState<(SalesReport | ProductReport)[]>([]);
+    const [dateRange, setDateRange] = useState<[Date | null, Date | null] | null>(null);
+    const [activeReport, setActiveReport] = useState<ReportType>("product");
+
+    const fetchReport = async (reportType: ReportType = "product") => {
         try {
             const endpoint = reportType === 'sales' ? '/api/sales/salesReport' : '/api/product/productreport';
             const response = await axiosInstance.get(endpoint);
 
             if (response.data.status) {
-                console.log(response.data.result)
+                console.log(response.data.result);
                 const data = reportType === 'sales'
                     ? response.data.result.salesReport || []
                     : response.data.result.productReport || [];
@@ -36,18 +69,16 @@ const ReportPage = () => {
         }
     };
 
-
     const handleDateRangeChange = (dates: any) => {
         setDateRange(dates);
     };
 
-    const exportToExcel = (data: any, fileName: any) => {
-        alert(fileName)
+    const exportToExcel = (data: (SalesReport | ProductReport)[], fileName: string) => {
         let processedData = data;
-        if (fileName == "Sales_Report") {
-            processedData = data.map((item: any) => ({
+        if (fileName === "Sales_Report") {
+            processedData = (data as SalesReport[]).map((item) => ({
                 Date: new Date(item.date).toLocaleDateString(),
-                Customer: item.customerDetails ? item.customerDetails.name : 'N/A', // Add customer name
+                Customer: item.customerDetails ? item.customerDetails.name : 'N/A',
                 "Item Name": item.itemName,
                 Price: `${item.price.toFixed(2)}`,
                 Quantity: item.quantity,
@@ -56,17 +87,15 @@ const ReportPage = () => {
             }));
         }
 
-        const workbook = XLSX.utils.book_new()
-        const worksheet = XLSX.utils.json_to_sheet(processedData)
-        XLSX.utils.book_append_sheet(workbook, worksheet)
-        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: "array" })
-        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(processedData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: "array" });
+        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
         saveAs(blob, `${fileName}.xlsx`);
+    };
 
-
-    }
-
-    const columns = {
+    const columns: ColumnsType = {
         sales: [
             {
                 title: 'Date',
@@ -78,7 +107,7 @@ const ReportPage = () => {
                 title: 'Customer',
                 dataIndex: 'customerDetails',
                 key: 'customerName',
-                render: (customerDetails) => customerDetails ? customerDetails.name : 'N/A'
+                render: (customerDetails: CustomerDetails) => customerDetails ? customerDetails.name : 'N/A'
             },
             {
                 title: 'Item Name',
@@ -109,7 +138,6 @@ const ReportPage = () => {
             },
         ],
         product: [
-            // { title: 'SI.No', dataIndex: 'index', key: 'index' },
             { title: 'Product Name', dataIndex: 'name', key: 'name' },
             { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
             { title: 'Price', dataIndex: 'price', key: 'price', render: (price: number) => `$${price.toLocaleString()}` },
@@ -118,15 +146,14 @@ const ReportPage = () => {
         ],
     };
 
-    const exportAsPdf = (data, fileName) => {
+    const exportAsPdf = (data: (SalesReport | ProductReport)[], fileName: string) => {
         const doc = new jsPDF();
         const title = fileName === "Sales_Report" ? "Sales Report" : "Product Report";
 
-        let tableData = [];
-        let tableColumns = [];
+        let tableData: (string | number)[][] = [];
+        let tableColumns: string[] = [];
 
         if (fileName === "Sales_Report") {
-            // Define columns for the sales report
             tableColumns = [
                 "Date",
                 "Customer",
@@ -137,8 +164,7 @@ const ReportPage = () => {
                 "Payment Method",
             ];
 
-            // Map data for the sales report
-            tableData = data.map((item) => [
+            tableData = (data as SalesReport[]).map((item) => [
                 new Date(item.date).toLocaleDateString(),
                 item.customerDetails ? item.customerDetails.name : "N/A",
                 item.itemName,
@@ -148,7 +174,6 @@ const ReportPage = () => {
                 item.paymentMethod,
             ]);
         } else {
-            // Define columns for the product report
             tableColumns = [
                 "Product Name",
                 "Quantity",
@@ -157,8 +182,7 @@ const ReportPage = () => {
                 "Total Revenue",
             ];
 
-            // Map data for the product report
-            tableData = data.map((item) => [
+            tableData = (data as ProductReport[]).map((item) => [
                 item.name,
                 item.quantity,
                 `$${item.price.toLocaleString()}`,
@@ -167,22 +191,21 @@ const ReportPage = () => {
             ]);
         }
 
-        // Add title
         doc.text(title, 14, 10);
-
-        // Add autoTable
         doc.autoTable({
             startY: 20,
             head: [tableColumns],
             body: tableData,
         });
 
-        // Save the PDF
         doc.save(`${fileName}.pdf`);
     };
-    const printData = (data, reportName) => {
+
+    const printData = (data: (SalesReport | ProductReport)[], reportName: string) => {
         const print = window.open("", "_blank");
-        if (!print) return; // Ensure the window opens successfully
+        if (!print) return;
+
+        const tableData = data as ProductReport[];  // Type assertion since we only print product reports
 
         print.document.write(`
             <html>
@@ -208,7 +231,7 @@ const ReportPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${data.map(item => `
+                            ${tableData.map(item => `
                                 <tr>
                                     <td>${item.name}</td>
                                     <td>${item.price}</td>
@@ -228,7 +251,6 @@ const ReportPage = () => {
     };
 
     useEffect(() => {
-
         fetchReport("product");
     }, []);
 
@@ -255,7 +277,7 @@ const ReportPage = () => {
                             </Button>
                         </div>
                         <div className="space-x-4">
-                            < Button
+                            <Button
                                 onClick={() => exportToExcel(reportData, activeReport === 'sales' ? 'Sales_Report' : 'Product_Report')}
                                 className="bg-green-500 text-white"
                             >
@@ -275,7 +297,6 @@ const ReportPage = () => {
                             </Button>
                         </div>
 
-
                         {activeReport === 'sales' && (
                             <RangePicker onChange={handleDateRangeChange} className="w-64" />
                         )}
@@ -291,10 +312,12 @@ const ReportPage = () => {
                                 dataSource={reportData}
                                 rowKey="_id"
                                 summary={(pageData) => {
-                                    const total = pageData.reduce(
-                                        (sum, row) => sum + (activeReport === 'sales' ? row.total : row.totalRevenue),
-                                        0
-                                    );
+                                    let total = 0;
+                                    if (activeReport === 'sales') {
+                                        total = (pageData as SalesReport[]).reduce((sum, row) => sum + row.total, 0);
+                                    } else {
+                                        total = (pageData as ProductReport[]).reduce((sum, row) => sum + row.totalRevenue, 0);
+                                    }
                                     return (
                                         <Table.Summary.Row>
                                             <Table.Summary.Cell index={0} colSpan={activeReport === 'sales' ? 4 : 4}>
@@ -317,4 +340,3 @@ const ReportPage = () => {
 };
 
 export default ReportPage;
-

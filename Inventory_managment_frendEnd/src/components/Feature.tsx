@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { FaUserFriends, FaBoxOpen, FaChartLine, FaFileExport, FaShieldAlt, FaClipboardList } from 'react-icons/fa';
 
 const FeaturesSection = () => {

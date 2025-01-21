@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
-import { DollarOutlined, PlusOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
+import { DollarOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, Col, Statistic, Table, } from 'antd';
 import axiosInstance from '../service/axiosConfigue';

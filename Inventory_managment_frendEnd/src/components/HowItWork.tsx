@@ -1,6 +1,4 @@
-'use client'
 
-import React from 'react'
 import { FaSignInAlt, FaBox, FaChartLine, FaFileAlt } from 'react-icons/fa'
 
 const steps = [

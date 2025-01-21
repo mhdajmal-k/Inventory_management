@@ -1,4 +1,4 @@
-import type React from "react"
+
 import { Card, Descriptions, Typography, Divider, Tag, Button } from "antd"
 import { DollarOutlined, CalendarOutlined, UserOutlined, DownloadOutlined } from "@ant-design/icons"
 import { useEffect, useState } from "react"

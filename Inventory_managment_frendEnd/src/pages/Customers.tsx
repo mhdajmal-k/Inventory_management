@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Space } from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ const CustomerManagementPage = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [editingItem, setEditingItem] = useState<Customer | null>(null);
-    const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+    // const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState<boolean>()
 
     const handleAddCustomer = () => {
