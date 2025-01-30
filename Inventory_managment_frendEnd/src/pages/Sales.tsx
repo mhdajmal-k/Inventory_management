@@ -3,7 +3,7 @@ import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import { DollarOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, Col, Statistic, Table, Badge, Space, Typography } from 'antd';
+import { Button, Card, Statistic, Table, Badge, Space, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import axiosInstance from '../service/axiosConfigue';
 import { getSale } from '../service/api';

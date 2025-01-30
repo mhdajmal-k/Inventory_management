@@ -77,13 +77,13 @@ const SalesReportPreview = () => {
             body: tableData,
         });
 
-        doc.text("Payment Method:", 14, doc.finalY + 10);
-        doc.text(salesData.paymentMethod, 50, doc.lastAutoTable.finalY + 10);
+        doc.text("Payment Method:", 14, 10);
+        doc.text(salesData.paymentMethod, 50, 10);
 
-        doc.text("Total:", 14, doc.lastAutoTable.finalY + 20);
-        doc.text(`RS:${salesData.total.toFixed(2)}`, 50, doc.lastAutoTable.finalY + 20);
+        doc.text("Total:", 14, 20);
+        doc.text(`RS:${salesData.total.toFixed(2)}`, 50, 20);
 
-        doc.text("Thanks for shopping with us", 50, doc.lastAutoTable.finalY + 40);
+        doc.text("Thanks for shopping with us", 50, 40);
 
         doc.save(`Sales_Receipt_${salesData.customerDetails[0].name}.pdf`);
     };
