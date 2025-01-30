@@ -67,55 +67,8 @@ class AuthController {
             next(error);
         }
     }
-    async getProfileData(
-        req: AuthenticatedRequest,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-        try {
-            const userId = req.user?.id;
 
-            const response = await this.AuthInteractor.userProfileData(userId);
-            if (response.status) {
-                const data = response.result as IUser;
-                res.status(response.statusCode).json({
-                    status: response.status,
-                    message: response.message,
-                    result: data,
-                });
-            }
-        } catch (error) {
-            console.log(error);
-            next(error);
-        }
-    }
-    async updateProfileData(
-        req: AuthenticatedRequest,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> {
-        try {
-            const userId = req.user?.id;
-            const data = req.body;
 
-            const response = await this.AuthInteractor.updateProfileData(
-                String(userId),
-                data
-            );
-            if (response.status) {
-                const data = response.result as IUser;
-
-                res.status(response.statusCode).json({
-                    status: response.status,
-                    message: response.message,
-                    result: data,
-                });
-            }
-        } catch (error) {
-            console.log(error);
-            next(error);
-        }
-    }
     async checkRefreshToken(
         req: Request,
         res: Response,

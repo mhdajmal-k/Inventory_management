@@ -8,21 +8,18 @@ import ISale from "../../frameWork/type/ISales";
 
 export default class SaleRepository implements ISaleRepository {
     async createSale(data: ISale): Promise<ISale> {
-        console.log(data)
         try {
-            const newItem = new Sale({
+            console.log(data, "in the create sale")
+            const newSale = new Sale({
                 customerId: data.customerId,
-                itemName: data.itemName,
-                price: data.price,
+                items: data.items,
                 paymentMethod: data.paymentMethod,
-                quantity: data.quantity,
                 total: data.total,
-                productId: data.productId,
                 author: data.author
             });
-            await newItem.save();
-            console.log(newItem, "dddddddddddd")
-            return newItem
+
+            await newSale.save();
+            return newSale;
         } catch (error) {
             if (error instanceof Error) {
                 throw new CustomError(
@@ -37,7 +34,9 @@ export default class SaleRepository implements ISaleRepository {
     async getSales(author: string | undefined): Promise<ISale[]> {
         try {
             const allSales = await Sale.aggregate([
-                { $match: { author: author } },
+                {
+                    $match: { author: author }
+                },
                 {
                     $lookup: {
                         from: "customers",
@@ -47,28 +46,76 @@ export default class SaleRepository implements ISaleRepository {
                     }
                 },
                 {
-                    $unwind: "$customerDetails",
+                    $unwind: "$customerDetails"
+                },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "items.productId",
+                        foreignField: "_id",
+                        as: "productDetails"
+                    }
+                },
+                {
+                    $addFields: {
+                        "items": {
+                            $map: {
+                                input: "$items",
+                                as: "item",
+                                in: {
+                                    $mergeObjects: [
+                                        "$$item",
+                                        {
+                                            productDetails: {
+                                                $arrayElemAt: [
+                                                    {
+                                                        $filter: {
+                                                            input: "$productDetails",
+                                                            cond: {
+                                                                $eq: ["$$this._id", "$$item.productId"]
+                                                            }
+                                                        }
+                                                    },
+                                                    0
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 },
                 {
                     $project: {
                         _id: 1,
-                        itemName: 1,
-                        price: 1,
-                        quantity: 1,
+                        date: 1,
                         paymentMethod: 1,
                         total: 1,
-                        date: 1,
-                        "customerDetails.name": 1,
-                        "customerDetails.email": 1,
-                        "customerDetails.phone": 1,
-                        "customerDetails.address": 1,
-                    },
+                        items: {
+                            productId: 1,
+                            itemName: 1,
+                            price: 1,
+                            quantity: 1,
+                            "productDetails.name": 1,
+                            "productDetails.category": 1
+                        },
+                        customerDetails: {
+                            name: 1,
+                            email: 1,
+                            mobile: 1,
+                            address: 1
+                        }
+                    }
+                },
+                {
+                    $sort: { date: -1 }
                 }
-            ])
-            console.log(allSales, "ssssssssssssssssssssssssssssssssssssssssss")
-            return allSales
+            ]);
+
+            return allSales;
         } catch (error: any) {
-            console.log(error.message)
+            console.error("Error in getSales:", error.message);
             if (error instanceof Error) {
                 throw new CustomError(
                     error.message || "An unexpected error occurred",
@@ -91,7 +138,7 @@ export default class SaleRepository implements ISaleRepository {
                 }
             },
         ])
-        console.log(allSales, "ssssssssssssssssssssssssssssssssssssssssss")
+
         return allSales[0]
     } catch(error: any) {
         console.log(error)

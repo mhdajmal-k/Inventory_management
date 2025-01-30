@@ -26,16 +26,8 @@ userRouter.post(
     validateLogin,
     authController.singIN.bind(authController)
 );
-userRouter.get(
-    "/profile",
-    authorization(),
-    authController.getProfileData.bind(authController)
-);
-userRouter.put(
-    "/profile",
-    // authorization(),
-    authController.updateProfileData.bind(authController)
-);
+
+
 userRouter.post(
     "/refreshToken",
     authController.checkRefreshToken.bind(authController)

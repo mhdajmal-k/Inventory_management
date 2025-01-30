@@ -8,37 +8,48 @@ import ISale from "../../frameWork/type/ISales";
 export default class SalesInteractor implements ISaleInteractor {
     constructor(private readonly Repository: ISaleRepository, private readonly productRepo: IProductRepository) { }
 
-    async createSale(product: ISale): Promise<{ statusCode: number; status: boolean; message: string; result: object | null; }> {
+    async createSale(sale: ISale): Promise<{ statusCode: number; status: boolean; message: string; result: object | null; }> {
         try {
-            const getValidProduct = await this.productRepo.getProductById(product.productId)
-            if (!getValidProduct) {
-                return {
-                    statusCode: HttpStatusCode.NotFound,
-                    message: Messages.InvalidProduct,
-                    result: null,
-                    status: true
+            // Validate all products and check stock
+            for (const item of sale.items) {
+                const getValidProduct = await this.productRepo.getProductById(item.productId);
+                if (!getValidProduct) {
+                    return {
+                        statusCode: HttpStatusCode.NotFound,
+                        message: `${Messages.InvalidProduct}: ${item.itemName}`,
+                        result: null,
+                        status: true
+                    };
+                }
+
+                if (getValidProduct.quantity < item.quantity) {
+                    return {
+                        statusCode: HttpStatusCode.BadRequest,
+                        message: `${Messages.InsufficientStock}: ${item.itemName}`,
+                        result: null,
+                        status: true
+                    };
                 }
             }
-            if (getValidProduct.quantity < product.quantity) {
-                return {
-                    statusCode: HttpStatusCode.BadRequest,
-                    message: Messages.InsufficientStock,
-                    result: null,
-                    status: true
+
+            // Calculate total
+            sale.total = sale.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Create sale
+            const createdSale = await this.Repository.createSale(sale);
+
+            if (createdSale) {
+                // Update product quantities
+                for (const item of sale.items) {
+                    await this.productRepo.updateProductQuantity(item.productId, item.quantity);
                 }
-            }
-            const total = product.price * product.quantity
-            product.total = total
-            const sale = await this.Repository.createSale(product)
-            if (sale) {
-                await this.productRepo.updateProductQuantity(product.productId, product.quantity)
 
                 return {
                     statusCode: HttpStatusCode.Created,
                     message: Messages.ProductAddedSuccessFully,
-                    result: sale,
+                    result: createdSale,
                     status: true
-                }
+                };
             } else {
                 throw new CustomError(
                     Messages.ProductAddedUnSuccessFully,
@@ -46,7 +57,7 @@ export default class SalesInteractor implements ISaleInteractor {
                 );
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
             if (error instanceof CustomError) {
                 throw new CustomError(
                     error.message,
@@ -57,20 +68,25 @@ export default class SalesInteractor implements ISaleInteractor {
             }
         }
     }
-    async getSalesData(author: string | undefined): Promise<{ statusCode: number; status: boolean; message: string; result: ISale[] | null; }> {
+
+    async getSalesData(author: string | undefined): Promise<{
+        statusCode: number;
+        status: boolean;
+        message: string;
+        result: ISale[] | null;
+    }> {
         try {
-            const allSales = await this.Repository.getSales(author)
-            console.log(allSales, "is teh use")
+            const allSales = await this.Repository.getSales(author);
             if (allSales) {
                 return {
-                    statusCode: HttpStatusCode.Created,
-                    message: "",
+                    statusCode: HttpStatusCode.OK, // Changed to OK since it's a GET request
+                    message: "Sales retrieved successfully",
                     result: allSales,
                     status: true
-                }
+                };
             } else {
                 throw new CustomError(
-                    Messages.ProductAddedUnSuccessFully,
+                    "Failed to retrieve sales",
                     HttpStatusCode.InternalServerError
                 );
             }
@@ -84,7 +100,6 @@ export default class SalesInteractor implements ISaleInteractor {
                 throw error;
             }
         }
-
     }
     async getOneSalesDataById(id: string): Promise<{ statusCode: number; status: boolean; message: string; result: ISale | null; }> {
         try {

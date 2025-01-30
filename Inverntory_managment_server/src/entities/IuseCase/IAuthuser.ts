@@ -14,12 +14,7 @@ interface IUserAuthInteractor {
         message: string;
         result: object | null;
     }>;
-    userProfileData(id: string | undefined): Promise<{
-        statusCode: number;
-        status: boolean;
-        message: string;
-        result: object;
-    }>;
+
     checkRefreshToken(
         token: string
     ): Promise<{
@@ -28,15 +23,7 @@ interface IUserAuthInteractor {
         result: string | null;
         statusCode: number;
     }>;
-    updateProfileData(
-        id: string,
-        user: IUserProfile
-    ): Promise<{
-        statusCode: number;
-        status: boolean;
-        message: string;
-        result: object;
-    }>;
+
 }
 
 export default IUserAuthInteractor;

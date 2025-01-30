@@ -150,6 +150,63 @@ export default class ProductRepository implements IProductRepository {
             }
         }
     }
+    // async ProductReport(author: string | undefined): Promise<any> {
+    //     try {
+    //         const productReport = await Product.aggregate([
+    //             { $match: { author: author, block: false } },
+    //             {
+    //                 $lookup: {
+    //                     from: "sales",
+    //                     localField: "_id",
+    //                     foreignField: "items.productId",
+    //                     as: "salesData"
+    //                 }
+    //             },
+    //             { $unwind: { path: "$salesData", preserveNullAndEmptyArrays: true } }, // Unwind salesData
+    //             { $unwind: { path: "$salesData.items", preserveNullAndEmptyArrays: true } },
+    //             {
+    //                 $addFields: {
+    //                     totalUnitsSold: {
+    //                         $sum: "$salesData.items.quantity"
+    //                     },
+    //                     totalRevenue: {
+    //                         $sum: {
+    //                             $map: {
+    //                                 input: "$salesData.items.quantity",
+    //                                 as: "sale",
+    //                                 in: { $multiply: ["$$sale.items.quantity", "$sale.items.price"] }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             },
+    //             {
+    //                 $project: {
+    //                     name: 1,
+    //                     price: 1,
+    //                     stock: 1,
+    //                     totalUnitsSold: 1,
+    //                     totalRevenue: 1,
+    //                     quantity: 1
+    //                 }
+    //             },
+    //             {
+    //                 $sort: { totalRevenue: -1 }
+    //             }
+    //         ]);
+    //         return productReport;
+    //     } catch (error) {
+    //         if (error instanceof Error) {
+    //             throw new CustomError(
+    //                 error.message || "An unexpected error occurred",
+    //                 HttpStatusCode.InternalServerError
+    //             );
+    //         } else {
+    //             throw error;
+    //         }
+    //     }
+    // }
+
     async ProductReport(author: string | undefined): Promise<any> {
         try {
             const productReport = await Product.aggregate([
@@ -158,22 +215,44 @@ export default class ProductRepository implements IProductRepository {
                     $lookup: {
                         from: "sales",
                         localField: "_id",
-                        foreignField: "productId",
+                        foreignField: "items.productId",
                         as: "salesData"
                     }
                 },
+                { $unwind: { path: "$salesData", preserveNullAndEmptyArrays: true } },
+                { $unwind: { path: "$salesData.items", preserveNullAndEmptyArrays: true } },
                 {
-                    $addFields: {
+                    $match: {
+                        "salesData.items.productId": { $exists: true }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        name: { $first: "$name" },
+                        price: { $first: "$price" },
+                        stock: { $first: "$quantity" },
                         totalUnitsSold: {
-                            $sum: "$salesData.quantity"
+                            $sum: {
+                                $cond: [
+                                    { $eq: ["$salesData.items.productId", "$_id"] },
+                                    "$salesData.items.quantity",
+                                    0
+                                ]
+                            }
                         },
                         totalRevenue: {
                             $sum: {
-                                $map: {
-                                    input: "$salesData",
-                                    as: "sale",
-                                    in: { $multiply: ["$$sale.quantity", "$price"] }
-                                }
+                                $multiply: [
+                                    {
+                                        $cond: [
+                                            { $eq: ["$salesData.items.productId", "$_id"] },
+                                            "$salesData.items.quantity",
+                                            0
+                                        ]
+                                    },
+                                    "$salesData.items.price"
+                                ]
                             }
                         }
                     }
@@ -185,13 +264,11 @@ export default class ProductRepository implements IProductRepository {
                         stock: 1,
                         totalUnitsSold: 1,
                         totalRevenue: 1,
-                        quantity: 1
                     }
                 },
-                {
-                    $sort: { totalRevenue: -1 }
-                }
+                { $sort: { totalRevenue: -1 } }
             ]);
+
             return productReport;
         } catch (error) {
             if (error instanceof Error) {
@@ -204,5 +281,9 @@ export default class ProductRepository implements IProductRepository {
             }
         }
     }
+
+
+
+
 
 }

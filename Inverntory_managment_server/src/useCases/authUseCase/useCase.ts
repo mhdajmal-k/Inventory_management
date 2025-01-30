@@ -174,35 +174,7 @@ class UserAuthInteractor implements IUserAuthInteractor {
             }
         }
     }
-    async updateProfileData(
-        id: string,
-        user: IUserProfile
-    ): Promise<{
-        statusCode: number;
-        status: boolean;
-        message: string;
-        result: object;
-    }> {
-        try {
-            const userData = await this.Repository.getIdAndUpdate(id, user);
-            const { password, ...withOutUserData } = userData;
-            return {
-                statusCode: HttpStatusCode.OK,
-                status: true,
-                message: Messages.ProfileUpdate,
-                result: withOutUserData,
-            };
-        } catch (error) {
-            if (error instanceof CustomError) {
-                throw new CustomError(
-                    error.message,
-                    HttpStatusCode.InternalServerError
-                );
-            } else {
-                throw error;
-            }
-        }
-    }
+
 }
 
 export default UserAuthInteractor;
