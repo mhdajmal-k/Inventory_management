@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+// import SalesReport from '../types/IpreviweSalesData';
 
 const { RangePicker } = DatePicker;
 
@@ -29,7 +30,7 @@ interface SalesReport {
 interface ProductReport {
     _id: string;
     name: string;
-    quantity: number;
+    stock: number;
     price: number;
     totalUnitsSold: number;
     totalRevenue: number;
@@ -37,9 +38,9 @@ interface ProductReport {
 
 type ReportType = 'sales' | 'product';
 
-// Define the columns type
+
 type ColumnsType = {
-    sales: any[];  // You can make this more specific if needed
+    sales: any[];
     product: any[];
 }
 interface ProcessedSalesReport {
@@ -54,7 +55,6 @@ interface ProcessedSalesReport {
 
 const ReportPage = () => {
     const [reportData, setReportData] = useState<(SalesReport | ProductReport)[]>([]);
-    // const [, setDateRange] = useState<[Date | null, Date | null] | null>(null);
     const [activeReport, setActiveReport] = useState<ReportType>("product");
 
     const fetchReport = async (reportType: ReportType = "product") => {
@@ -64,9 +64,24 @@ const ReportPage = () => {
 
             if (response.data.status) {
                 console.log(response.data.result);
-                const data = reportType === 'sales'
+                let data = reportType === 'sales'
                     ? response.data.result.salesReport || []
                     : response.data.result.productReport || [];
+                if (reportType === 'sales') {
+                    // Flatten sales data
+                    data = data.flatMap((sale: any) =>
+                        sale.items.map((item: any) => ({
+                            _id: sale._id,
+                            date: sale.date,
+                            customerDetails: sale.customerDetails,
+                            itemName: item.itemName,
+                            price: item.price,
+                            quantity: item.quantity,
+                            total: item.price * item.quantity, // Calculate total per item
+                            paymentMethod: sale.paymentMethod,
+                        }))
+                    );
+                }
                 setReportData(data);
                 setActiveReport(reportType);
             } else {
@@ -119,7 +134,7 @@ const ReportPage = () => {
                 title: 'Customer',
                 dataIndex: 'customerDetails',
                 key: 'customerName',
-                render: (customerDetails: CustomerDetails) => customerDetails ? customerDetails.name : 'N/A'
+                render: (customerDetails: CustomerDetails) => customerDetails ? customerDetails.name : 'N/A',
             },
             {
                 title: 'Item Name',
@@ -130,7 +145,7 @@ const ReportPage = () => {
                 title: 'Price',
                 dataIndex: 'price',
                 key: 'price',
-                render: (price: number) => `RS:${price.toFixed(2)}`,
+                render: (price: number) => price ? `RS:${price.toFixed(2)}` : 'N/A', // Check if price is defined
             },
             {
                 title: 'Quantity',
@@ -141,7 +156,7 @@ const ReportPage = () => {
                 title: 'Total',
                 dataIndex: 'total',
                 key: 'total',
-                render: (total: number) => `RS:${total.toFixed(2)}`,
+                render: (total: number) => total ? `RS:${total.toFixed(2)}` : 'N/A', // Check if total is defined
             },
             {
                 title: 'Payment Method',
@@ -151,10 +166,10 @@ const ReportPage = () => {
         ],
         product: [
             { title: 'Product Name', dataIndex: 'name', key: 'name' },
-            { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
-            { title: 'Price', dataIndex: 'price', key: 'price', render: (price: number) => `$${price.toLocaleString()}` },
+            { title: 'Remaining Quantity', dataIndex: 'stock', key: 'stock' },
+            { title: 'Price', dataIndex: 'price', key: 'price', render: (price: number) => `${price.toLocaleString()}` },
             { title: 'Total Units Sold', dataIndex: 'totalUnitsSold', key: 'totalUnitsSold' },
-            { title: 'Total Revenue', dataIndex: 'totalRevenue', key: 'totalRevenue', render: (revenue: number) => `$${revenue.toLocaleString()}` },
+            { title: 'Total Revenue', dataIndex: 'totalRevenue', key: 'totalRevenue', render: (revenue: number) => `${revenue.toLocaleString()}` },
         ],
     };
 
@@ -196,7 +211,7 @@ const ReportPage = () => {
 
             tableData = (data as ProductReport[]).map((item) => [
                 item.name,
-                item.quantity,
+                item.stock,
                 `$${item.price.toLocaleString()}`,
                 item.totalUnitsSold,
                 `$${item.totalRevenue.toLocaleString()}`,
@@ -247,7 +262,7 @@ const ReportPage = () => {
                                 <tr>
                                     <td>${item.name}</td>
                                     <td>${item.price}</td>
-                                    <td>${item.quantity}</td>
+                                    <td>${item.stock}</td>
                                     <td>${item.totalRevenue}</td>
                                     <td>${item.totalUnitsSold}</td>
                                 </tr>
