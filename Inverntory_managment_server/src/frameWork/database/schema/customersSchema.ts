@@ -15,6 +15,10 @@ const CustomerSchema = new Schema<ICustomer>({
         required: true,
         match: [/^\d{10}$/, 'Mobile number must be 10 digits'],
     },
+    block: {
+        type: Boolean,
+        default: false
+    },
     gender: {
         type: String,
         required: true

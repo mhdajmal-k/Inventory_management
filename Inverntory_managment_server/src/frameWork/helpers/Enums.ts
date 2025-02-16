@@ -19,7 +19,9 @@ export enum Messages {
     ProductEditFiled = "Product Edit Filed",
     CustomerEditFiled = "customer Edit Filed",
     InvalidProduct = "Invalid Product",
-    InsufficientStock = 'Insufficient stock available'
+    InsufficientStock = 'Insufficient stock available',
+    CustomerUpdatedSuccessFully = "CustomerUpdatedSuccessFully",
+    CustomerUpdateFailed = "CustomerUpdateFailed"
 }
 
 export enum HttpStatusCode {

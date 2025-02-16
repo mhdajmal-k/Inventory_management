@@ -70,4 +70,33 @@ export default class CustomersRepository implements ICustomersRepository {
         }
 
     }
+    async blockAndUnblock(customersId: string, block: boolean): Promise<ICustomers | null> {
+        try {
+            const updatedCustomer = await Customer.findByIdAndUpdate(
+                customersId,
+                { block },
+                { new: true, runValidators: true } // Ensures updated document is returned
+            );
+
+            if (!updatedCustomer) {
+                throw new CustomError(
+                    Messages.Block,
+                    HttpStatusCode.NotFound
+                );
+            }
+
+            return updatedCustomer;
+
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new CustomError(
+                    error.message || "An unexpected error occurred",
+                    HttpStatusCode.InternalServerError
+                );
+            } else {
+                throw error;
+            }
+        }
+    }
+
 }

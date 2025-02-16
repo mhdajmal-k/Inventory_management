@@ -55,6 +55,32 @@ class CustomersController {
             next(error);
         }
     }
+    async blockAndUnblockCustomers(req: Request, res: Response, next: NextFunction) {
+        try {
+            const customerId = req.params.id;
+            const { block } = req.body;
+            console.log(block)
+            console.log(customerId)
+            if (typeof block !== "boolean") {
+                res.status(400).json({
+                    status: false,
+                    message: "Invalid block value. It should be a boolean."
+                });
+            }
+
+            const response = await this.CustomersInteractor.blockAndUnblockCustomers(customerId, block);
+
+            res.status(response.statusCode).json({
+                status: response.status,
+                message: response.message,
+                result: response.result,
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
 }
 
 export default CustomersController;

@@ -29,3 +29,9 @@ customerRoute.put(
     authorization(),
     customersController.updateCustomers.bind(customersController)
 );
+customerRoute.patch(
+    "/blockAndUnblock/:id",
+    authorization(),
+    customersController.blockAndUnblockCustomers.bind(customersController)
+);
+

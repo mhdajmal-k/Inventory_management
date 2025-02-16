@@ -15,7 +15,13 @@ export default interface ICustomersInteractor {
         message: string;
         result: ICustomers[] | null;
     }>;
-    updateCustomers(productId: string, data: ICustomers): Promise<{
+    updateCustomers(Customers: string, data: ICustomers): Promise<{
+        statusCode: number;
+        status: boolean;
+        message: string;
+        result: ICustomers | null;
+    }>;
+    blockAndUnblockCustomers(customersId: string, block: boolean): Promise<{
         statusCode: number;
         status: boolean;
         message: string;

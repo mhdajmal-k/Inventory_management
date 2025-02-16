@@ -7,6 +7,7 @@ export interface ICustomers extends Document {
     mobile: string;
     gender: string;
     email: string,
-    author: string | mongoose.Types.ObjectId
+    author: string | mongoose.Types.ObjectId,
+    block: Boolean
 
 }

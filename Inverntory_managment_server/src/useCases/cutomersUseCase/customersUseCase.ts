@@ -93,4 +93,38 @@ export default class CustomerInteractor implements ICustomersInteractor {
             }
         }
     }
+    async blockAndUnblockCustomers(customersId: string, block: boolean): Promise<{
+        statusCode: number;
+        status: boolean;
+        message: string;
+        result: ICustomers | null;
+    }> {
+        try {
+            const customer = await this.Repository.blockAndUnblock(customersId, block);
+
+            if (customer) {
+                return {
+                    statusCode: HttpStatusCode.OK,
+                    message: Messages.CustomerUpdatedSuccessFully,
+                    result: customer,
+                    status: true
+                };
+            } else {
+                throw new CustomError(
+                    Messages.CustomerUpdateFailed,
+                    HttpStatusCode.NotFound
+                );
+            }
+        } catch (error) {
+            if (error instanceof CustomError) {
+                throw new CustomError(
+                    error.message,
+                    HttpStatusCode.InternalServerError
+                );
+            } else {
+                throw error;
+            }
+        }
+    }
+
 }

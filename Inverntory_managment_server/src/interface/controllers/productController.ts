@@ -41,7 +41,7 @@ class ProductController {
     async updateProducts(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         try {
             const productId = req.params.id
-            console.log(productId, 'si the contorler')
+            // console.log(productId, 'si the contorler')
             const data = req.body
             const response = await this.ProductInteractor.updateProducts(productId, data)
             if (response.status) {
