@@ -157,20 +157,23 @@ const CreateSales = () => {
                                 layout="vertical"
                                 className="space-y-6">
 
-                                {/* Customer Section */}
+
                                 <Form.Item
                                     label="Customer Name"
                                     name="customerName"
                                     rules={[{ required: true, message: "Please select a customer" }]}
                                 >
                                     <Select showSearch onChange={handleCustomerChange}>
-                                        {customers.map((customer) => (
-                                            <Select.Option key={customer._id} value={customer.name}>
-                                                {customer.name}
-                                            </Select.Option>
-                                        ))}
+                                        {customers
+                                            .filter((customer) => !customer.block)
+                                            .map((customer) => (
+                                                <Select.Option key={customer._id} value={customer.name}>
+                                                    {customer.name}
+                                                </Select.Option>
+                                            ))}
                                     </Select>
                                 </Form.Item>
+
 
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <Form.Item label="Email" name="email">
@@ -211,7 +214,7 @@ const CreateSales = () => {
                                         + Add Item
                                     </Button>
 
-                                    {/* Selected Items List */}
+
                                     {selectedItems.length > 0 && (
                                         <div className="border p-4 rounded-md mb-4">
                                             <h3 className="font-semibold mb-2">Selected Items:</h3>

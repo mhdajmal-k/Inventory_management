@@ -83,6 +83,7 @@ const InventoryPage = () => {
             console.log(data, "in the data")
             const response = await axiosInstance.post(ADDPRODUCTS, data);
             if (response.status === 200 || response.status === 201) {
+
                 setInventoryItems([...inventoryItems, response.data.result]);
                 setFilteredItems([...inventoryItems, response.data.result]);
 
@@ -106,6 +107,10 @@ const InventoryPage = () => {
                 setInventoryItems((prevItems) =>
                     prevItems.map((item) => (item._id === id ? response.data.result : item))
                 );
+                setFilteredItems((prevItems) =>
+                    prevItems.map((item) => (item._id === id ? response.data.result : item))
+                );
+                // getProducts()
                 toast.success('Product updated successfully!');
             }
         } catch (error: any) {

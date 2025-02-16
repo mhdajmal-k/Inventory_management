@@ -5,4 +5,5 @@ export default interface Customer {
     mobile: string;
     gender: string;
     email: string;
+    block: boolean
 }

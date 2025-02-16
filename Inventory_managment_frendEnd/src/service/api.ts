@@ -13,5 +13,7 @@ export const updateCustomer = "/api/customer/";
 export const createSale = "/api/sales/";
 export const getSale = "/api/sales/";
 export const viewSaleData = "/api/sales/";
+export const BLOCK_CUSTOMER = "/api/customer/blockAndUnblock";
+
 
 

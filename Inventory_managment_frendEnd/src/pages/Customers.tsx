@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Space, Popconfirm } from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { toast } from 'sonner';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import axiosInstance from '../service/axiosConfigue';
-import { ADDcustomer, GETcustomer, updateCustomer, } from '../service/api';
+import { ADDcustomer, BLOCK_CUSTOMER, GETcustomer, updateCustomer, } from '../service/api';
 import Customer from '../types/ICustomers';
 
 
@@ -88,6 +88,30 @@ const CustomerManagementPage = () => {
         }
     };
 
+    const handleBlockUnblock = async (customer: Customer) => {
+        try {
+            const updatedStatus = !customer.block;
+            console.log(updatedStatus)
+            console.log(customer)
+            const response = await axiosInstance.patch(`${BLOCK_CUSTOMER}/${customer._id}`, { block: updatedStatus });
+
+            if (response.status === 200 || response.status === 201) {
+                setCustomers((prevCustomers) =>
+                    prevCustomers.map((item) =>
+                        item._id === customer._id ? { ...item, block: updatedStatus } : item
+                    )
+                );
+                toast.success(`Customer ${updatedStatus ? 'blocked' : 'unblocked'} successfully!`);
+            }
+        } catch (error: any) {
+            if (error.response) {
+                toast.error(error.response.data.message || 'Failed to update customer status.');
+            } else {
+                toast.error('An unexpected error occurred.');
+            }
+        }
+    };
+
     const columns = [
         {
             title: 'Name',
@@ -122,10 +146,20 @@ const CustomerManagementPage = () => {
                     <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>
                         Edit
                     </Button>
-
+                    <Popconfirm
+                        title={`Are you sure you want to ${record.block ? "unblock" : "block"} this customer?`}
+                        onConfirm={() => handleBlockUnblock(record)}
+                        okText={record.block ? "Unblock" : "Block"}
+                        cancelText="Cancel"
+                    >
+                        <Button danger={record.block} type={record.block ? "default" : "primary"}>
+                            {record.block ? "Unblock" : "Block"}
+                        </Button>
+                    </Popconfirm>
                 </Space>
             ),
         },
+
     ];
 
     const handleEdit = (item: Customer) => {
